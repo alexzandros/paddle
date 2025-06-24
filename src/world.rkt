@@ -1,3 +1,4 @@
+
 #lang racket
 
 (provide (contract-out
@@ -35,15 +36,13 @@
      (set-global! 'world-rows cols)
      (set-global! 'frame-width pixels)
      (set-global! 'frame-height pixels)
-     (set-global! 'ticker 0)
-     ]
+     (set-global! 'ticker 0)]
     [(cols rows width height)
      (set-global! 'world-columns cols)
      (set-global! 'world-rows rows)
      (set-global! 'frame-width width)
      (set-global! 'frame-height height)
-     (set-global! 'ticker 0)]
-    ))
+     (set-global! 'ticker 0)]))
 
 ;; RUN-WORLD
 ;; This runs everything.
@@ -61,8 +60,7 @@
           ;; Clean up globals
           (clear-global-structures)
           ;; Collect garbage.
-          (collect-garbage 'major)
-          )))
+          (collect-garbage 'major))))
 
 ;; ----------------------------------------------------------------
 ;; INTERNAL
@@ -78,8 +76,7 @@
        [min-width  (get-global 'frame-width)]
        [min-height (get-global 'frame-height)]
        [x (- screen-x (get-global 'frame-width) 50)]
-       [y 50]
-       ))
+       [y 50]))
 
 (define (make-canvas win)
   (new paddle-canvas%
@@ -125,8 +122,7 @@
 (define (world-draw)
   (setup-gl-draw)
   (draw-patches)
-  (draw-agents)
-  )
+  (draw-agents))
 
 (define (setup-gl-draw)
   (define rows (get-global 'world-rows))
@@ -156,9 +152,7 @@
       (for ([critter (agentset->list (get-agentset plural))])
         (when critter
           (parameterize ([current-agent critter])
-            ((get-agentset-meta plural 'default-drawing-function) critter)
-            ))))
-    ))
+            ((get-agentset-meta plural 'default-drawing-function) critter)))))))
 
 (define (get-patch-coordinate pid)
   (values (quotient  pid (get-global 'world-columns))
@@ -187,6 +181,4 @@
       (glVertex3f (+ side (* side row)) (+ 0 (* col side)) -0.1)
       (glVertex3f (+ side (* side row)) (+ side (* col side)) -0.1)
       (glVertex3f (+ 0 (* side row)) (+ side (* col side)) -0.1)
-      (glEnd)
-      )
-    ))
+      (glEnd))))

@@ -7,8 +7,7 @@
          "util.rkt"
          "agents.rkt"
          "state.rkt"
-         "types.rkt"
-         )
+         "types.rkt")
 
 (require (for-syntax racket/list "types.rkt"))
 
@@ -27,8 +26,7 @@
                                            (syntax->datum #'(user-fields ...)))])
                       (format-id stx "agent-~a" id))]
                    [(nums ...) (range (length (append agent-base-fields
-                                                      (syntax->datum #'(user-fields ...)))))]
-                   )
+                                                      (syntax->datum #'(user-fields ...)))))])
                       
      #`(begin
          (define plural (quote plural))
@@ -51,9 +49,7 @@
          (set-agentset-meta! (quote plural) 'fields
                              (append agent-base-fields
                                      (syntax->datum #'(user-fields ...))))
-         (define breed-ids nums) ...
-         ))
-     ]))
+         (define breed-ids nums) ...))]))
 
 
 (module+ test
@@ -70,5 +66,4 @@
   (check-equal? chicken-direction 6)
   ;; User-defined fields begin at 8, because
   ;; there are 7 base fields. (As of this comment.)
-  (check-equal? chicken-wings 8)
-  )
+  (check-equal? chicken-wings 8))

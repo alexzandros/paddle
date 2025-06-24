@@ -152,6 +152,5 @@
         (send qt insert (make-point (vector-ref a agent-x)
                                     (vector-ref a agent-y)
                                     a)))))
-  (current-quadtree qt)
-  )
+  (current-quadtree qt))
   

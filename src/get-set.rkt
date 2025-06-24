@@ -3,8 +3,7 @@
 (provide (all-defined-out))
 (require "state.rkt"
          "types.rkt"
-         "util.rkt"
-         )
+         "util.rkt")
 
 (require (for-syntax syntax/parse racket/syntax "agents.rkt" "util.rkt"))
 
@@ -30,8 +29,7 @@
      
     [(_get a k)
      (with-syntax ([field (format-id stx "agent-~a" #'k)])
-       #`(vector-ref a k))]
-    ))
+       #`(vector-ref a k))]))
 
 (define-syntax (set stx)
   (syntax-parse stx
@@ -66,8 +64,7 @@
          (vector-set! (current-agent) k expr))]
      
     [(_set a k expr)
-     #`(vector-set! a k expr)]
-    ))
+     #`(vector-set! a k expr)]))
 
 
 ;; This needs to be memoized for performance.
@@ -117,8 +114,7 @@
     [(pid k)
      (define result (hash-ref (vector-ref (get-global 'the-world) pid) k 'NoPatchFieldsFound))
      ;;(printf "get pid ~a k ~a v ~a~n" pid k result)
-     result]
-     ))
+     result]))
 
 
 (define clear-patch!

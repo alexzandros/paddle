@@ -1,6 +1,6 @@
 #lang racket
 
-(require paddle)
+(require "../main.rkt")
 
 ;; Sheep will have kids at SHIP-KID-ENERGY energy.
 ;; They start with SHEEP-START-E energy, and gain SHEEP-GAIN
@@ -11,14 +11,14 @@
 ;; they eat a sheep. 
 
 (define RxC 150)
-(make-world RxC 800)
+(make-world RxC 200)
 
 (create-breed sheep sheeps #:have energy)
 (create-breed wolf wolves #:have energy)
-(create sheeps 300)
-(create wolves 50)
-(set-max! sheeps 1000)
-(set-max! wolves 1000)
+(create sheeps 130)
+(create wolves 25)
+(set-max! sheeps 100)
+(set-max! wolves 10)
 
 (define SHEEP-START-E 10)
 (define SHEEP-GAIN 1)
@@ -38,17 +38,13 @@
     (set sheep-color (color 255 255 255))
     (set sheep-x (random RxC))
     (set sheep-y (random RxC))
-    (set sheep-energy SHEEP-START-E)
-    )
+    (set sheep-energy SHEEP-START-E))
 
   (ask wolves
     (set wolf-color (color 0 127 127))
     (set wolf-x (random RxC))
     (set wolf-y (random RxC))
-    (set wolf-energy WOLF-START-E)
-    )
-  
-  )
+    (set wolf-energy WOLF-START-E)))
 
 (define (wiggle mn mx)
   (define amount (+ mn (random (- mx mn))))
@@ -59,11 +55,10 @@
 (define (one-of as)
   (cond
     [(empty? as) empty]
-    [else (list (list-ref as (random (length as))))]
-    ))
+    [else (list (list-ref as (random (length as))))]))
 
 (define (go)
-  (sleep (/ 1 60))
+  (sleep (/ 1 20))
   ;; Sheep wiggle, move, and gain energy.
   (ask sheeps
     (wiggle 5 15)
@@ -72,8 +67,7 @@
       (set sheep-color (color 255 255 255)))
     ;; FIXME
     ;; There should be an increment! or increase-by form.
-    (set sheep-energy (add1 (get sheep-energy)))
-    )
+    (set sheep-energy (add1 (get sheep-energy))))
 
   
   (ask sheeps
@@ -87,8 +81,7 @@
         (set sheep-x (get parent sheep-x))
         (set sheep-y (get parent sheep-y))
         (set sheep-energy 5)
-        (set sheep-color (color 127 127 0))
-        )))
+        (set sheep-color (color 127 127 0)))))
   
   ;; Wolves wiggle and move
   ;; They wiggle more and are faster.
@@ -112,8 +105,7 @@
       ;; This is harder than it needs to be.
       (set this-wolf wolf-energy (+ (get this-wolf wolf-energy)
                                     (get this-sheep sheep-energy)))
-      (die this-sheep)
-      ))
+      (die this-sheep)))
 
   (ask wolves
     (when (>= (get wolf-energy) WOLF-KID-ENERGY)
@@ -126,14 +118,11 @@
         (set wolf-x (+ (get parent wolf-x) (random 3)))
         (set wolf-y (+ (get parent wolf-y) (random 3)))
         (set wolf-energy (/ WOLF-START-E 3))
-        (set wolf-color (color 255 0 0))
-        )
-      ;;(sleep 5)
-      ))
+        (set wolf-color (color 255 0 0)))
+      #;(sleep 5)))
 
   ;; Log data for the plot
   (log wolves-count wolves)
-  (log sheeps-count sheeps)
-  )
+  (log sheeps-count sheeps))
 
 (run-world setup go)

@@ -15,8 +15,8 @@
     (define/override (on-paint)
       (with-gl-context (λ ()
                          (world-draw)
-                         (swap-gl-buffers)
-                         )))
+                         (swap-gl-buffers))))
+    
     (define/override (on-size width height)
       (with-gl-context (λ() (glViewport 0 0 width height) (on-paint))))
     (super-instantiate () (style '(gl)))))
@@ -32,7 +32,7 @@
     ;; (init-field stop)
     
     (define/augment (on-close)
-      (printf "The sky is falling!~n")
+      #;(printf "The sky is falling!~n")
       ;; Hide the window
       (send this show false)
       ;; Kill the execution threads

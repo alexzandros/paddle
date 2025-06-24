@@ -17,12 +17,10 @@
    [compact-agentset/vector         (-> symbol? any)]
    [compact-agentset/hash           (-> symbol? any)]
    [agentset->list/hash             (-> hash? list?)]
-   [remove-agent!/hash              (-> hash? number? any)]
-   ))
+   [remove-agent!/hash              (-> hash? number? any)]))
  (contract-out
   [get-max-id                 (-> symbol? number?)]
-  [extend-agentset/vector            (-> symbol? any)]
-  ))
+  [extend-agentset/vector            (-> symbol? any)]))
 
 (require "util.rkt"
          "state.rkt")
@@ -94,8 +92,7 @@
        (set! new-end-index insert)]))
   ;; (printf "v*: ~a~n" vec)
   ;; (printf "nx: ~a~n" new-end-index)
-  new-end-index
-  )
+  new-end-index)
 
 (define (compact-agentset/vector plural)
   ;; (printf "Compacting ~a~n" plural)
@@ -127,13 +124,13 @@
 
 (module+ test
   (require rackunit)
-  (define v (make-vector 10 false))
+  (define v (make-vector 15 false))
   
   (for ([n (vector-length v)])
     (when (even? n)
       (vector-set! v n n)))
   (define nex (compact v))
 
-  (check-equal? nex 5)
-  (check-equal? v #(0 2 4 6 8 #f #f #f #f #f))
+  (check-equal? nex 8)
+  (check-equal? v #(0 2 4 6 8 10 12 14 #f #f #f #f #f #f #f))
   )

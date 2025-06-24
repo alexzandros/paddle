@@ -5,8 +5,7 @@
 (require "agentsets.rkt"
          "util.rkt"
          "state.rkt"
-         "types.rkt"
-         )
+         "types.rkt")
 
 (provide (rename-out [create/hash create])
          (rename-out [hatch/hash   hatch])
@@ -15,10 +14,13 @@
          (rename-out [triangle shape:turtle])
          (rename-out [circle shape:circle])
          (rename-out [disk shape:disk])
+         agent-x
+         agent-y
+         agent-id
+         agent-pid
          ;;agent-direction
          ;;agent-vy
-         ;;agent-vx
-         )
+         #;agent-vx)
 
 (define (make-default-agent sing plur ndx)
   (define x (/ (get-global 'world-columns) 2))
@@ -41,8 +43,7 @@
                               (random 256)))
                  (map (λ (f) 0)
                       (drop (get-agentset-meta plur 'fields)
-                            (length agent-base-fields)))) 
-         ))
+                            (length agent-base-fields))))))
 
 
 ;; This creates new agent vectors and inserts them into
@@ -79,13 +80,10 @@
       (set-agentset-meta! plural-sym (combine-to-symbol singular '-next-index) (+ num starting-ndx))
       (set-agentset-meta! plural-sym
                           'default-drawing-function
-                          draw-agent)
-      )
-
+                          draw-agent))
     (cond
       [rns (vector->list new-set)]
-      [else (void)])
-    ))
+      [else (void)])))
 
 (define (create/hash plural-sym num #:return-new-set [rns false])
   (define singular (get-agentset-meta plural-sym 'singular))
@@ -101,19 +99,16 @@
           [asvec (get-agentset plural-sym)])
       (insert-into-agentset! asvec ndx agent)
       (when rns
-        (insert-into-agentset! new-set (- ndx starting-ndx) agent))
-      )
+        (insert-into-agentset! new-set (- ndx starting-ndx) agent)))
      
     (set-agentset-meta! plural-sym (combine-to-symbol singular '-next-index) (+ num starting-ndx))
     (set-agentset-meta! plural-sym
                         'default-drawing-function
-                        draw-agent)
-    )
+                        draw-agent))
    
   (cond
     [rns (hash-values new-set)]
-    [else (void)])
-  )
+    [else (void)]))
 
 (define (hatch/spine plural-sym num)
   (create/spine plural-sym num #:return-new-set true))
@@ -165,7 +160,7 @@
 
 ;; https://stackoverflow.com/questions/22444450/drawing-circle-with-opengl
 (define (round radius segments type)
-    (λ (a)
+  (λ (a)
     (define turtle-x (vector-ref a agent-x))
     (define turtle-y (vector-ref a agent-y))
     (define vx (vector-ref a agent-vx))
@@ -191,5 +186,4 @@
 ;; FIXME
 (define (draw-agent a)
   (let ()
-    ((vector-ref a agent-shape) a)
-    ))
+    ((vector-ref a agent-shape) a)))

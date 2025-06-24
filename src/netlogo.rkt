@@ -42,13 +42,10 @@
            (for ([agent (get-agents as)])
              (when (vector? agent)
                (parameterize ([current-agent agent])
-                 bodies ...))
-             )))]
-    ))
+                 bodies ...)))))]))
 
 (define (sniff plural distance)
   (when (vector? (current-agent))
-    (define new-as
       (filter (λ (a)
                 (and (symbol=? (vector-ref a agent-plural) plural)
                      (not (= (vector-ref a agent-id)
@@ -57,8 +54,7 @@
                     query
                     (make-rect (vector-ref (current-agent) agent-x)
                                (vector-ref (current-agent) agent-y)
-                               distance distance))))
-    new-as))
+                               distance distance)))))
 
 
 (define (any? as)
@@ -74,8 +70,7 @@
          (filter (λ (a)
                    (parameterize ([current-agent a])
                      (and a expr)))
-                 agents))]
-    ))
+                 agents))]))
 
 (define die
   (case-lambda
@@ -141,8 +136,7 @@
         (vector-set! (current-agent) agent-x 0.001)
         (vector-set! (current-agent) agent-vx (- cur-vx))])
 
-     (cond
-       [(> new-y rows)
+     (cond [(> new-y rows)
         (vector-set! (current-agent) agent-y (- rows 0.001))
         (vector-set! (current-agent) agent-vy (- cur-vy))]
        [(< new-y 0)
@@ -163,8 +157,8 @@
      (define new-y2 (+ cur-y2 dy2))
      
      (vector-set! (current-agent) agent-x new-x2)
-     (vector-set! (current-agent) agent-y new-y2)] ;; end bounce
-    ) ;; End case
+      ;; end bounce
+     (vector-set! (current-agent) agent-y new-y2)])
 
   (vector-set! (current-agent)
                    agent-pid
@@ -172,8 +166,7 @@
                     ;; Need to floor this, or we can't index into
                     ;; the patch array...
                     (exact-floor (vector-ref (current-agent) agent-x))
-                    (exact-floor (vector-ref (current-agent) agent-y))))
-  )
+                    (exact-floor (vector-ref (current-agent) agent-y)))))
 
 
 (define (right d)
@@ -181,16 +174,14 @@
   (vector-set! (current-agent) agent-direction new-d)
   (define-values (vx vy) (degrees->components new-d))
   (vector-set! (current-agent) agent-vx vx)
-  (vector-set! (current-agent) agent-vy vy)
-  )
+  (vector-set! (current-agent) agent-vy vy))
 
 (define (left d)
   (define new-d (+ (vector-ref (current-agent) agent-direction) d))
   (vector-set! (current-agent) agent-direction new-d)
   (define-values (vx vy) (degrees->components new-d))
   (vector-set! (current-agent) agent-vx vx)
-  (vector-set! (current-agent) agent-vy vy)
-)
+  (vector-set! (current-agent) agent-vy vy))
 
 
 (module+ test
