@@ -10,15 +10,15 @@
 ;; every world tick. They gain SHEEP-ENERGY every time
 ;; they eat a sheep. 
 
-(define RxC 150)
-(make-world RxC 200)
+(define RxC 300)
+(make-world RxC 400)
 
 (create-breed sheep sheeps #:have energy)
 (create-breed wolf wolves #:have energy)
-(create sheeps 130)
-(create wolves 25)
-(set-max! sheeps 100)
-(set-max! wolves 10)
+(create sheeps 430)
+(create wolves 50)
+(set-max! sheeps 2000)
+(set-max! wolves 100)
 
 (define SHEEP-START-E 10)
 (define SHEEP-GAIN 1)
@@ -26,8 +26,8 @@
 
 (define WOLF-START-E 20)
 (define WOLF-LOSS 1)
-(define WOLF-KID-ENERGY 40)
-(define WOLF-EAT-RADIUS 4)
+(define WOLF-KID-ENERGY 30)
+(define WOLF-EAT-RADIUS 6)
 
 (create-log wolves-count)
 (create-log sheeps-count)
@@ -67,10 +67,16 @@
       (set sheep-color (color 255 255 255)))
     ;; FIXME
     ;; There should be an increment! or increase-by form.
-    (set sheep-energy (add1 (get sheep-energy))))
+    ;; The sheeps only eats 50% of the time. A hacky way to represent grass availability
+    ;; Whein it eats it increases its energy, otherwise it loses enetgy
+    (if (>= 0.75 (random))
+        (set sheep-energy (add1 (get sheep-energy)))
+        (begin
+          (set sheep-energy (sub1 (get sheep-energy))))))
 
   
   (ask sheeps
+       (when (<= (get sheep-energy) 0) (die))
     (when (> (get sheep-energy) SHEEP-KID-ENERGY)
       (set sheep-energy 5)
       (define parent (current-agent))
@@ -110,14 +116,14 @@
   (ask wolves
     (when (>= (get wolf-energy) WOLF-KID-ENERGY)
       (define parent (current-agent))
-      (set parent wolf-energy (/ WOLF-START-E 2))
+      (set parent wolf-energy (/ WOLF-START-E 1))
       (define kids (hatch wolves (add1 (random 2))))
       ;; (printf "~a had ~a kids~n" (get sheep-id) (length kids))
       (ask kids
         (set wolf-direction (random 360))
         (set wolf-x (+ (get parent wolf-x) (random 3)))
         (set wolf-y (+ (get parent wolf-y) (random 3)))
-        (set wolf-energy (/ WOLF-START-E 3))
+        (set wolf-energy (/ WOLF-START-E 2))
         (set wolf-color (color 255 0 0)))
       #;(sleep 5)))
 
