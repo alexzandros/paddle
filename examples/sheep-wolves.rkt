@@ -73,7 +73,7 @@
     ;; It is proportional to the number of sheeps divided the availabnle patches
     ;; A hacky way to represent grass availability
     ;; Whein it eats it increases its energy, otherwise it loses enetgy
-    (if (<= (/ sheeps-count (* 0.25 RxC RxC)) (random))
+    (if (<= (/ sheeps-count (* 0.05 RxC RxC)) (random))
         (set sheep-energy (add1 (get sheep-energy)))
         (begin
           (set sheep-energy (sub1 (get sheep-energy))))))

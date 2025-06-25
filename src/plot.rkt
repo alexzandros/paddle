@@ -9,7 +9,7 @@
 (define plot-details (make-hash))
 
 (define SQL-QUERY-STRING
-#<<sql-code
+  #<<sql-code
 select value from (select ndx, value from counts order by ndx desc limit 250) order by ndx asc
 sql-code
   )
@@ -23,7 +23,7 @@ sql-code
                  'bitmap
                  (new bitmap-dc% [bitmap
                                   (make-object bitmap% (inexact->exact (floor (* w 0.9)))
-                                    (inexact->exact (floor (* h 0.65))))])))
+                                    (inexact->exact (floor (* h 0.85))))])))
     (super-new)))
 
 (define save-canvas%
@@ -73,14 +73,16 @@ sql-code
                               (format "~a" o))
                             (quote (db-tags ...)))
                        "_")))
-    (define (plot-thread)
+    (define f (new save-frame%
+                   [label "plot"]
+                   [width W]
+                   [height H]))
+
+    (define c (new save-canvas% [parent f]))
+
+    (define plot-thread
       (thread (λ ()
-                (define f (new save-frame%
-                               [label "plot"]
-                               [width W]
-                               [height H]))
                 (send f show true)
-                (define c (new save-canvas% [parent f]))
                 (define dc (send c get-dc))
                 (hash-set! plot-details
                            'bitmap
@@ -93,7 +95,7 @@ sql-code
                 (define data-exists? false)
                 
                 (let loop ()
-                  (sleep 0.15)
+                  (sleep 0.1)
                   
                   (define the-lines
                     (for/list ([conn conns]
@@ -129,20 +131,14 @@ sql-code
                              (hash-ref plot-details 'bitmap)
                              0 0
                              (* 0.9 (send f get-width))
-                             (* 0.65 (send f get-height))
+                             (* 0.85 (send f get-height))
                              #:x-label "Ticks"
                              #:y-label "Turtles"
                              #:y-max (* (val-max) 1.1)
                              #:y-min (* (val-min) 1.1))
-                    (send dc draw-bitmap (send (hash-ref plot-details 'bitmap) get-bitmap) 0 0)
-                    #;(plot/dc the-lines
-                             dc 0 0
-                             (send f get-width)
-                             (send f get-height)
-                             #:x-label "Ticks"
-                             #:y-label "Turtles"
-                             #:y-max (* (val-max) 1.1)
-                             #:y-min (* (val-min) 1.1)))
+                    (send dc draw-bitmap (send (hash-ref plot-details 'bitmap) get-bitmap) 0 0))
                   'pass
                   (loop)))))
-    (add-thread-to-kill! (plot-thread))))
+    (thread (thunk (sync (thread-dead-evt plot-thread))
+                   (send f show #f)))
+    (add-thread-to-kill! plot-thread)))
