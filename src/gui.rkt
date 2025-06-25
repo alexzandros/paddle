@@ -37,5 +37,6 @@
       (send this show false)
       ;; Kill the execution threads
       ((stop))
+      #;(exit)
       )
     (super-new)))

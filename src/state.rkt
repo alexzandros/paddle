@@ -23,13 +23,13 @@
 ;; For setting and getting the agentset vectors.
 (define-values (get-agentset set-agentset!)
   (values
-   (λ (k)   (hash-ref  agentsets k false))
+   (λ (k)   (hash-ref  agentsets k #f))
    (λ (k v) (hash-set! agentsets k v))))
 
 ;; For setting and getting metadata about a given breed.
 (define-values (get-agentset-meta set-agentset-meta!)
   (values
-   (λ (plural k)   (hash-ref  (hash-ref agentsets-meta plural) k false))
+   (λ (plural k)   (hash-ref  (hash-ref agentsets-meta plural) k #f))
    (λ (plural k v) (hash-set! (hash-ref agentsets-meta plural) k v))))
 
 ;; Initialize the metadata. Speciically, create an empty
@@ -48,10 +48,10 @@
 ;; For example, (ask ...) sets the (current-agent) as a matter of course.
 ;; This makes it easier to then implement (get ...) and (set ...), as they
 ;; operate on the current agent.
-(define current-agent    (make-parameter false))
-(define current-patch    (make-parameter false))
-(define current-agentset (make-parameter false))
-(define current-quadtree (make-parameter false))
+(define current-agent    (make-parameter #f))
+(define current-patch    (make-parameter #f))
+(define current-agentset (make-parameter #f))
+(define current-quadtree (make-parameter #f))
 
 ;; GLOBALS
 ;; I am confident there is a better way. These parameters have
@@ -60,7 +60,7 @@
 (define globals (make-hash))
 (define-values (get-global set-global!)
   (values
-   (λ (k) (hash-ref globals k false))
+   (λ (k) (hash-ref globals k #f))
    (λ (k v) (hash-set! globals k v))))
 
 ;; DEFAULT GLOBALS
@@ -105,7 +105,7 @@
 (define threads-to-kill '())
 (define (add-thread-to-kill! t)
   (set! threads-to-kill (cons t threads-to-kill)))
-(define stop (make-parameter false))
+(define stop (make-parameter #f))
 
 ;; CLEANING UP
 ;; Is there a way to get the garbage collector to free everything when I
@@ -118,16 +118,15 @@
   (set! globals (make-hash))
   (global-defaults)
   ;; Clear the parameters
-  (current-agent false)
-  (current-patch false)
-  (current-agentset false)
-  (current-quadtree false)
+  (current-agent #f)
+  (current-patch #f)
+  (current-agentset #f)
+  (current-quadtree #f)
   ;; Clear dirty bits for the patches
   (set! dirty-bits (make-hash))
   ;; Wipe all the agentsets
   (set! agentsets (make-hash))
-  (set! agentsets-meta (make-hash))
-  )
+  (set! agentsets-meta (make-hash)))
 
 
 ;; QUADTREE

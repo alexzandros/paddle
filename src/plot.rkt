@@ -1,6 +1,6 @@
 #lang racket
 
-(provide (all-defined-out))
+(provide (except-out (all-defined-out) SQL-QUERY-STRING))
 (require "state.rkt"
          racket/gui
          plot
@@ -8,17 +8,27 @@
 
 (define plot-details (make-hash))
 
+(define SQL-QUERY-STRING
+#<<sql-code
+select value from (select ndx, value from counts order by ndx desc limit 250) order by ndx asc
+sql-code
+  )
+
 (define save-frame%
   (class frame%
+
     (define/override (on-size w h)
       (printf "Resized~n")
       (hash-set! plot-details
                  'bitmap
-                 (new bitmap-dc% [bitmap (make-object bitmap% w h)])))
+                 (new bitmap-dc% [bitmap
+                                  (make-object bitmap% (inexact->exact (floor (* w 0.9)))
+                                    (inexact->exact (floor (* h 0.65))))])))
     (super-new)))
 
 (define save-canvas%
   (class canvas%
+
     (define/override (on-event mouse-evt)
       (when (symbol=? (send mouse-evt get-event-type) 'right-down)
         (send (send (hash-ref plot-details 'bitmap) get-bitmap)
@@ -26,17 +36,18 @@
               (format "~a-~a.png"
                       (hash-ref plot-details 'filename)
                       (ticker))
-              'png))
-      )
+              'png)))
     (super-new)))
       
-(define (intersperse ls o)
+;; FIX I'm pretty sure there's an builtin that does this
+
+(define (intersperse ls separator)
   (cond
     [(empty? ls) empty]
-    [(empty? (rest ls)) (list (first ls))]
+    [(empty? (rest ls)) ls]
     [else
      (cons (first ls)
-           (cons o (intersperse (rest ls) o)))]))
+           (cons separator (intersperse (rest ls) separator)))]))
 
 ;; http://tools.medialab.sciences-po.fr/iwanthue/
 (define distinct-colors
@@ -52,16 +63,16 @@
                       [107 108 44] [223 155 110])))
 
 (define-syntax-rule (create-plot db-tags ...)
-  (let ([W 400]
-        [H 200]
-        )
+  (let ([W 800]
+        [H 600])
     (hash-set! plot-details
                'filename
                (apply string-append
                       (intersperse
                        (map (λ (o)
                               (format "~a" o))
-                            (quote (db-tags ...))) "_")))
+                            (quote (db-tags ...)))
+                       "_")))
     (define (plot-thread)
       (thread (λ ()
                 (define f (new save-frame%
@@ -82,49 +93,47 @@
                 (define data-exists? false)
                 
                 (let loop ()
-                  (sleep 1)
+                  (sleep 0.15)
                   
                   (define the-lines
                     (for/list ([conn conns]
                                [color-ndx  (range (length conns))])
                       
-                      (define rows (query-rows conn "select * from counts"))
+                      (define rows (query-list conn SQL-QUERY-STRING))
                       
                       (define the-data
                         (cond
-                          [(> (length rows) 0)
+                          [rows
                            ;; (printf "Plotting ~a rows~n" (length rows))
-                           (define mx (query-value conn "select max(value) from counts"))
+                           (define mx (apply max rows))
                            (when (< (val-max) mx)
                              (val-max mx))
                            
-                           (define mn (query-value conn "select min(value) from counts"))
+                           (define mn (apply min rows))
                            (when (> (val-min) mn)
                              (val-min mn))
                            
                            (define data
-                             (for/vector ([row rows])
-                               (vector (vector-ref row 1) (vector-ref row 2))))
+                             (for/vector ([value rows][index (in-naturals)])
+                               (vector index value)))
                            (set! data-exists? true)
                            data]
                           [else '()]))
                       
                       (lines the-data 
                              #:color (list-ref distinct-colors
-                                               (modulo color-ndx (length distinct-colors))))
-                      ))
+                                               (modulo color-ndx (length distinct-colors))))))
                   ;; (printf "LINES: ~a~n" the-lines)
                   (when data-exists?
                     (plot/dc the-lines
                              (hash-ref plot-details 'bitmap)
                              0 0
-                             (send f get-width)
-                             (send f get-height)
+                             (* 0.9 (send f get-width))
+                             (* 0.65 (send f get-height))
                              #:x-label "Ticks"
                              #:y-label "Turtles"
                              #:y-max (* (val-max) 1.1)
-                             #:y-min (* (val-min) 1.1)
-                             )
+                             #:y-min (* (val-min) 1.1))
                     (send dc draw-bitmap (send (hash-ref plot-details 'bitmap) get-bitmap) 0 0)
                     #;(plot/dc the-lines
                              dc 0 0
@@ -133,11 +142,7 @@
                              #:x-label "Ticks"
                              #:y-label "Turtles"
                              #:y-max (* (val-max) 1.1)
-                             #:y-min (* (val-min) 1.1)
-                             )
-                    )
+                             #:y-min (* (val-min) 1.1)))
                   'pass
-                  (loop)
-                  ))))
-    (add-thread-to-kill! (plot-thread))
-    ))
+                  (loop)))))
+    (add-thread-to-kill! (plot-thread))))

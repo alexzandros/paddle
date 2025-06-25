@@ -147,9 +147,9 @@
               (color-blue c))
     
   ;; FIXME This does not center the agent in a square.          
-  (glVertex3f turtle-x (+ (/ 1 2) turtle-y) 0.1)
-  (glVertex3f (- turtle-x (/ 1 2)) (- turtle-y (/ 1 2)) 0.1)
-  (glVertex3f (+ turtle-x (/ 1 2)) (- turtle-y (/ 1 2)) 0.1)
+  (glVertex3f turtle-x (+ (/ 1 1) turtle-y) 0.1)
+  (glVertex3f (- turtle-x (/ 1 1)) (- turtle-y (/ 1 1)) 0.1)
+  (glVertex3f (+ turtle-x (/ 1 1)) (- turtle-y (/ 1 1)) 0.1)
   (glEnd)
 
   (glBegin GL_LINES)

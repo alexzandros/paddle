@@ -10,8 +10,10 @@
 ;; every world tick. They gain SHEEP-ENERGY every time
 ;; they eat a sheep. 
 
-(define RxC 300)
-(make-world RxC 400)
+(define RxC 256)
+(make-world RxC 840)
+(define wolves-count 0)
+(define sheeps-count 0)
 
 (create-breed sheep sheeps #:have energy)
 (create-breed wolf wolves #:have energy)
@@ -67,9 +69,11 @@
       (set sheep-color (color 255 255 255)))
     ;; FIXME
     ;; There should be an increment! or increase-by form.
-    ;; The sheeps only eats 50% of the time. A hacky way to represent grass availability
+    ;; The sheeps has certain probability to eat.
+    ;; It is proportional to the number of sheeps divided the availabnle patches
+    ;; A hacky way to represent grass availability
     ;; Whein it eats it increases its energy, otherwise it loses enetgy
-    (if (>= 0.75 (random))
+    (if (<= (/ sheeps-count (* 0.25 RxC RxC)) (random))
         (set sheep-energy (add1 (get sheep-energy)))
         (begin
           (set sheep-energy (sub1 (get sheep-energy))))))
@@ -128,7 +132,7 @@
       #;(sleep 5)))
 
   ;; Log data for the plot
-  (log wolves-count wolves)
-  (log sheeps-count sheeps))
+  (set! wolves-count (log wolves-count wolves))
+  (set! sheeps-count (log sheeps-count sheeps)))
 
 (run-world setup go)

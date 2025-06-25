@@ -7,8 +7,7 @@
                [insert-into-agentset!/hash    insert-into-agentset!]
                [compact-agentset/hash         compact-agentset]
                [agentset->list/hash           agentset->list]
-               [remove-agent!/hash            remove-agent!]
-               )
+               [remove-agent!/hash            remove-agent!])
   (contract-out
    [make-empty-agentset/hash        (-> hash?)]
    [make-empty-agentset/vector      (-> vector?)]

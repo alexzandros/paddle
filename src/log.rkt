@@ -2,6 +2,7 @@
 (provide create-log log get-log log-conns)
 
 (require db sql
+         json racket/mutable-treelist
          "get-set.rkt"
          "netlogo.rkt"
          "agents.rkt"
@@ -13,16 +14,13 @@ create table counts(
   ndx integer primary key,
   tick integer,
   value integer,
-  id integer,
-  pid integer,
-  x integer,
-  y integer);
+  jsondata text);
 sql-code
   )
 
 (define SQL-TABLE-INSERT
   #<<sql-code
-insert into counts (tick, value, id, pid, x, y) values ($1, $2, $3, $4, $5, $6);
+insert into counts (tick, value, jsondata) values ($1, $2, $3);
 sql-code
   )
 
@@ -45,21 +43,27 @@ sql-code
 (define (get-log tag)
   (hash-ref log-conns tag))
 
+(define (agent->hash agent)
+  (hash 'id (get agent agent-id)
+        'pid (get agent agent-pid)
+        'x (get agent agent-x)
+        'y (get agent agent-y)))
+
 (define-syntax-rule (log tag agent-set)
-  (let ([agent-count 0])
+  (let ([agent-count 0][tick-data (mutable-treelist)])
     (for ([agent (get-agents agent-set)])
       (parameterize ([current-agent agent])
         (when agent
-          (set! agent-count (add1 agent-count))
-          (query-exec
-           (hash-ref log-conns (quote tag))
-           SQL-TABLE-INSERT
-           (ticker)
-           agent-count
-           (get agent agent-id)
-           (get agent agent-pid)
-           (get agent agent-x)
-           (get agent agent-y)))))))
+          (define agent-data (agent->hash agent))
+          (mutable-treelist-add! tick-data agent-data)
+          (set! agent-count (add1 agent-count)))))
+    (query-exec (hash-ref log-conns (quote tag))
+                SQL-TABLE-INSERT
+                (ticker)
+                agent-count
+                (with-output-to-string
+                  (thunk (write-json (mutable-treelist->list tick-data)))))
+    agent-count))
 
 (module+ test
   (require "netlogo.rkt"

@@ -12,8 +12,7 @@
          "src/netlogo.rkt"
          "src/log.rkt"
          "src/plot.rkt"
-         "src/patches.rkt"
-         )
+         "src/patches.rkt")
 
 (provide (all-from-out
           "src/agentsets.rkt"
@@ -28,5 +27,4 @@
           "src/netlogo.rkt"
           "src/log.rkt"
           "src/plot.rkt"
-          "src/patches.rkt"
-          ))
+          "src/patches.rkt"))

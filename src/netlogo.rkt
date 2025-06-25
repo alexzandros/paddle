@@ -81,8 +81,7 @@
      ;; We just set that agent to false, and they go away.
      ;; I think.
      (remove-agent! (hash-ref agentsets plural)
-                    (vector-ref ca agent-id)
-                    )
+                    (vector-ref ca agent-id))
      ;; Update the quadtree when things die, so they
      ;; can't interact again.
      ;; (build-quadtree)
@@ -90,8 +89,7 @@
            remove!
            (make-point (vector-ref ca agent-x)
                        (vector-ref ca agent-y)
-                       ca))
-     ]))
+                       ca))]))
    
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Movement

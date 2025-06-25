@@ -6,8 +6,7 @@
                                           (-> number? number? any)
                                           (-> number? number? number? number? any))]
           [run-world                     (-> procedure? procedure? any)]
-          [draw-world                    (-> any)]
-          ))
+          [draw-world                    (-> any)]))
 
 ;; Libraries in the Racket distribution
 (require (except-in racket/gui set)
@@ -50,17 +49,17 @@
                    user-go
                    #:interface [interface false])
 
-    (define-values (frame canvas)
-      (world-setup user-setup))
+  (define-values (frame canvas)
+    (world-setup user-setup))
   
   ;; This actually spawns the draw thread...
   (add-thread-to-kill! (draw-thread frame canvas user-go))
-  (stop (λ ()
-          (map kill-thread threads-to-kill)
-          ;; Clean up globals
-          (clear-global-structures)
-          ;; Collect garbage.
-          (collect-garbage 'major))))
+  (stop (thunk (send frame show #f)
+               (map kill-thread threads-to-kill)
+               ;; Clean up globals
+               (clear-global-structures)
+               ;; Collect garbage.          
+               (collect-garbage 'major))))
 
 ;; ----------------------------------------------------------------
 ;; INTERNAL
@@ -89,15 +88,14 @@
 (define draw-world (make-parameter false))
 
 (define (draw-thread win gl go)
-    (thread (λ ()              
-              (let loop ()
-                (build-quadtree)
-                (go)
-                (send gl on-paint)
-                (world-tick)
-                ;; Rinse and repeat
-                (loop)
-                ))))
+  (thread (λ ()              
+            (let loop ()
+              (build-quadtree)
+              (go)
+              (send gl on-paint)
+              (world-tick)
+              ;; Rinse and repeat
+              (loop)))))
 
 (define (world-setup user-setup)
   ;; Initialize the global variables table with
